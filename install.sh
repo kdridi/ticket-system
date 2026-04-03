@@ -1,22 +1,45 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_RAW="https://raw.githubusercontent.com/kdridi/ticket-system/main"
 SYSTEM_DIR=".tickets"
 TICKETS_DIR="tickets"
 COMMANDS_DIR=".claude/commands/tickets"
 
+# Detect invocation mode: local (bash install.sh) vs remote (curl | bash)
+if [ -f "$0" ]; then
+  SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+  MODE="local"
+else
+  REPO_RAW="https://raw.githubusercontent.com/kdridi/ticket-system/main"
+  MODE="remote"
+fi
+
+# Fetch a file: copy locally or download from GitHub
+fetch() {
+  local src="$1" dst="$2"
+  if [ "$MODE" = "local" ]; then
+    cp "${SCRIPT_DIR}/${src}" "$dst"
+  else
+    curl -sSLf "${REPO_RAW}/${src}" -o "$dst"
+  fi
+}
+
 echo "=== Ticket System - Installing ==="
 
-# Download system files into .tickets/
+# Install system files into .tickets/
 mkdir -p "${SYSTEM_DIR}"
 for file in config.yml TEMPLATE.md; do
-  curl -sSLf "${REPO_RAW}/system/${file}" -o "${SYSTEM_DIR}/${file}"
+  fetch "system/${file}" "${SYSTEM_DIR}/${file}"
   echo "  ${SYSTEM_DIR}/${file}"
 done
 
-# Prompt for ticket ID prefix (< /dev/tty needed for curl | bash)
-read -rp "Ticket ID prefix [PROJ]: " PREFIX < /dev/tty
+# Prompt for ticket ID prefix
+# Local mode: read from stdin; remote (curl|bash): read from /dev/tty
+if [ "$MODE" = "local" ]; then
+  read -rp "Ticket ID prefix [PROJ]: " PREFIX
+else
+  read -rp "Ticket ID prefix [PROJ]: " PREFIX < /dev/tty
+fi
 PREFIX="${PREFIX:-PROJ}"
 cat > "${SYSTEM_DIR}/config.yml" <<CONF
 prefix: "${PREFIX}"
@@ -25,10 +48,10 @@ tickets_dir: "tickets"
 CONF
 echo "  Prefix set to: ${PREFIX}"
 
-# Download slash commands into .claude/commands/tickets/
+# Install slash commands into .claude/commands/tickets/
 mkdir -p "${COMMANDS_DIR}"
 for file in create.md; do
-  curl -sSLf "${REPO_RAW}/system/commands/tickets/${file}" -o "${COMMANDS_DIR}/${file}"
+  fetch "system/commands/tickets/${file}" "${COMMANDS_DIR}/${file}"
   echo "  ${COMMANDS_DIR}/${file}"
 done
 

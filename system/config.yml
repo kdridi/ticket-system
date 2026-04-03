@@ -1,0 +1,3 @@
+prefix: "PROJ"
+digits: 3
+tickets_dir: "tickets"

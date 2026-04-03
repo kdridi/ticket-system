@@ -420,22 +420,26 @@ All commands, templates, hooks, and scripts read from this config. No hardcoded 
 
 ```
 target-project/
+├── .claude/
+│   └── commands/
+│       └── tickets/                     # Slash commands (/tickets:create, etc.)
+│           ├── create.md
+│           ├── analyze.md
+│           ├── split.md
+│           ├── schedule.md
+│           ├── schedule-batch.md
+│           ├── plan.md
+│           ├── implement.md
+│           ├── verify.md
+│           └── commit.md
+│
 ├── .tickets/                            # System files (rm -rf to uninstall)
 │   ├── config.yml                       # Parameterization (prefix, paths)
 │   ├── TEMPLATE.md                      # Ticket template
 │   ├── hooks/
 │   │   └── verify-ticket-completion.sh
-│   ├── agents/
-│   │   └── ticket-analyzer.md           # Complexity analysis agent
-│   └── commands/                        # Slash commands
-│       ├── analyze.md
-│       ├── split.md
-│       ├── schedule.md
-│       ├── schedule-batch.md
-│       ├── plan.md
-│       ├── implement.md
-│       ├── verify.md
-│       └── commit.md
+│   └── agents/
+│       └── ticket-analyzer.md           # Complexity analysis agent
 │
 ├── tickets/                             # Ticket data
 │   ├── backlog/

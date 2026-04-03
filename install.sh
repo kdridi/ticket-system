@@ -15,6 +15,16 @@ for file in config.yml TEMPLATE.md; do
   echo "  ${SYSTEM_DIR}/${file}"
 done
 
+# Prompt for ticket ID prefix (< /dev/tty needed for curl | bash)
+read -rp "Ticket ID prefix [PROJ]: " PREFIX < /dev/tty
+PREFIX="${PREFIX:-PROJ}"
+cat > "${SYSTEM_DIR}/config.yml" <<CONF
+prefix: "${PREFIX}"
+digits: 3
+tickets_dir: "tickets"
+CONF
+echo "  Prefix set to: ${PREFIX}"
+
 # Download slash commands into .claude/commands/tickets/
 mkdir -p "${COMMANDS_DIR}"
 for file in create.md; do

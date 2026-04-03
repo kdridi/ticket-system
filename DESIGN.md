@@ -24,9 +24,9 @@ The system enforces a disciplined single-ticket-at-a-time development process th
 
 ---
 
-## 2. What Already Exists (Proven Components)
+## 2. Proven Patterns & Reference Designs
 
-These components have been battle-tested across 73 tickets in a real project. They work. Extract, parameterize, and reuse them.
+Sections 2.1–2.6 describe the core data model and conventions that this system implements. Sections 2.7–2.8 document reference designs from a prior project (proven across 73 tickets) that may be implemented in future phases.
 
 ### 2.1 Ticket Format
 
@@ -145,7 +145,9 @@ PROJ-XXX: Short description of the change
 ```
 One ticket may span multiple commits.
 
-### 2.7 Existing Validation (proven, reuse as-is)
+### 2.7 Reference: Validation Patterns (from prior project)
+
+> These validation patterns were proven in a prior project. They are documented here as reference designs for potential future implementation (see Phase 5), not as components that currently exist in this repository.
 
 **Makefile `verify-ticket` target:**
 - Checks for duplicate tickets across directories
@@ -163,7 +165,9 @@ One ticket may span multiple commits.
 - Code linting and formatting (ruff or project-specific)
 - Trailing whitespace, YAML/TOML validation
 
-### 2.8 Existing Agent: Ticket Analyzer
+### 2.8 Reference: Ticket Analyzer Agent (from prior project)
+
+> This agent design was proven in a prior project. It is documented here as a reference for future implementation (see Phase 5).
 
 A Claude Code sub-agent that evaluates ticket complexity across 7 dimensions:
 - Scope (files/functions to change)
@@ -240,6 +244,8 @@ Also verifies implementation readiness:
 2. Topologically sort by dependencies
 3. Insert all into `roadmap.md` in the correct order
 4. Single commit for the batch
+
+**Note:** `/schedule-batch` is a convenience wrapper around `/schedule`. For most workflows, calling `/schedule` repeatedly achieves the same result. This command adds value when scheduling many related tickets with inter-dependencies, as it handles topological sorting automatically. Lower priority than `/schedule` itself — see Phase 5.
 
 #### `/analyze`
 
@@ -454,29 +460,33 @@ target-project/
 
 ## 7. Implementation Tracking
 
-### Phase 1: Foundation
+> **Implementation order note:** Phase 2 (scheduling) must be built before Phase 3 (inner loop) because the inner loop commands require tickets to be scheduled first. During bootstrapping, tickets can be moved manually until `/schedule` is available.
+
+### Phase 1: Foundation (completed)
 - [x] Repository scaffold (this repo)
 - [x] `install.sh` — downloads system files, creates directory structure
 - [x] `system/config.yml` — default configuration
 - [x] `system/TEMPLATE.md` — ticket template
-- [ ] Makefile with `verify-ticket` target
-- [ ] `verify-ticket-completion.sh` hook
-- [ ] `ticket-analyzer.md` agent
-- [ ] Pre-commit hook config
 
-### Phase 2: Inner Loop (core pipeline)
+### Phase 2: Outer Loop (intake & scheduling)
+- [ ] `/schedule` command
+- [ ] `/analyze` command
+- [ ] `/split` command
+
+### Phase 3: Inner Loop (core pipeline)
 - [ ] `/plan` command
 - [ ] `/implement` command
 - [ ] `/verify` command
 - [ ] `/commit` command
 
-### Phase 3: Outer Loop (intake & monitoring)
-- [ ] `/schedule` command
-- [ ] `/schedule-batch` command
-- [ ] `/analyze` command
-- [ ] `/split` command
-
 ### Phase 4: Polish
 - [ ] Mermaid state diagram
 - [ ] End-to-end pipeline test on a sample project
 - [ ] Command reference documentation
+
+### Phase 5: Nice-to-have (validation & tooling)
+- [ ] Makefile with `verify-ticket` target
+- [ ] `verify-ticket-completion.sh` hook
+- [ ] `ticket-analyzer.md` agent
+- [ ] Pre-commit hook config
+- [ ] `/schedule-batch` command
